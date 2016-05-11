@@ -333,6 +333,18 @@ def SumOfListColumn(list,column_index,rows_to_skip):
         total += row[column_index]
     return total
 
+
+def AvgOfListColumn(list,column_index,rows_to_skip=0):
+    total = 0
+    row_count = 0
+    for row in list[rows_to_skip:]:
+        total += float(row[column_index])
+        row_count += 1
+    if row_count > 0:
+        return float(total)/float(row_count)
+    else:
+        print "Div by 0 error"
+
 def CreateTotalRow(List,RowsToSkip,ColsToSkip):
     TotalRow = []
     for j in range(ColsToSkip,len(List[0])):
@@ -352,3 +364,31 @@ def PrintTabularResults(header_list,data_list):
 def TransposeTable(table):
     transposed_table = [[x[i] for x in table] for i in range(len(table[0]))]
     return transposed_table
+
+def InterfaceCountdown(SecondsToCountdown):
+    import time
+    SecsLeft = int(SecondsToCountdown)
+    while SecsLeft > 0:
+        print "... %d ..." % SecsLeft
+        time.sleep(1)
+        SecsLeft -= 1
+
+def SortListByColumn(List,ColumnIndex):
+    from operator import itemgetter
+    sorted_List = sorted(List, key=itemgetter(ColumnIndex))
+    return sorted_List
+
+def PercentileOfList(List,Percentile,Ascending=True):
+    """
+    :param List: list of values [value1, .... , valueN]
+    :param Percentile: desired percentile of List (inclusive)
+    :return:
+    """
+    N = len(List)
+    K = int(Percentile*N) #Number of data points
+    ascending_List = sorted(List)
+
+    if Ascending == True:
+        return ascending_List[:K]
+    else:
+        return ascending_List[::-1][:K]

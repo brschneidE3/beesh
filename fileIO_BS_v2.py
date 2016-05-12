@@ -378,6 +378,13 @@ def SortListByColumn(List,ColumnIndex):
     sorted_List = sorted(List, key=itemgetter(ColumnIndex))
     return sorted_List
 
+def SortListByRow(List,RowIndex):
+    List = zip(*List)
+    List.sort(key=lambda x: x[RowIndex])
+    List = zip(*List)
+    return List
+
+
 def PercentileOfList(List,Percentile,Ascending=True):
     """
     :param List: list of values [value1, .... , valueN]

@@ -1,6 +1,9 @@
 __author__ = 'brsch'
 
 import matplotlib.pyplot as plt
+import random
+import numpy as np
+
 default_colormap = plt.cm.winter
 
 def StackedBar(data,subplot_int,colors=None,labels=None,monochromatic=False,direction=0):
@@ -66,6 +69,43 @@ def Lines(data,subplot_int,colors=None,labels=None,monochromatic=False,direction
     plt.legend(loc='lower right')
     return ax
 
+def BestFitLine(xd,yd,subplot_int):
+
+    ax = plt.subplot(subplot_int)
+    # sort the data
+    reorder = sorted(range(len(xd)), key = lambda ii: xd[ii])
+    xd = [xd[ii] for ii in reorder]
+    yd = [yd[ii] for ii in reorder]
+
+    # make the scatter plot
+    plt.scatter(xd, yd, s=30, alpha=0.15, marker='o')
+
+    # determine best fit line
+    par = np.polyfit(xd, yd, 1, full=True)
+
+    slope=par[0][0]
+    intercept=par[0][1]
+    xl = [min(xd), max(xd)]
+    yl = [slope*xx + intercept  for xx in xl]
+
+    # coefficient of determination, plot text
+    variance = np.var(yd)
+    residuals = np.var([(slope*xx + intercept - yy)  for xx,yy in zip(xd,yd)])
+    Rsqr = np.round(1-residuals/variance, decimals=2)
+    plt.text(.7*max(xd)+.3*min(xd),.9*max(yd)+.1*min(yd),'$R^2 = %0.2f$'% Rsqr, fontsize=30)
+
+    # error bounds
+    yerr = [abs(slope*xx + intercept - yy)  for xx,yy in zip(xd,yd)]
+    par = np.polyfit(xd, yerr, 2, full=True)
+
+    yerrUpper = [(xx*slope+intercept)+(par[0][0]*xx**2 + par[0][1]*xx + par[0][2]) for xx,yy in zip(xd,yd)]
+    yerrLower = [(xx*slope+intercept)-(par[0][0]*xx**2 + par[0][1]*xx + par[0][2]) for xx,yy in zip(xd,yd)]
+
+    plt.plot(xl, yl, '-r')
+    plt.plot(xd, yerrLower, '--r')
+    plt.plot(xd, yerrUpper, '--r')
+    return ax
+
 """
 fig = plt.figure(1)
 ax = Lines([[1,2,3],
@@ -73,5 +113,11 @@ ax = Lines([[1,2,3],
        [7,10,13],
        [4,16,64]],111,monochromatic=True)
 fig.add_subplot(ax)
+plt.show()
+
+fig = plt.figure(0)
+X = range(100)
+Y = [random.random()*100 for i in range(100)]
+ax = BestFitLine(X,Y,132)
 plt.show()
 """

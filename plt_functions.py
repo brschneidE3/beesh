@@ -19,7 +19,6 @@ def StackedBar(data,subplot_int,colors=None,labels=None,monochromatic=False,dire
                 colors =  [default_colormap(float(i)/num_Ys) for i in range(1,num_Ys+1)]
             else:
                 colors = [default_colormap(1-(float(i)/num_Ys)) for i in range(1,num_Ys+1)]
-
     if labels == False:
         labels = [None for i in range(num_Ys)]
     elif labels == None:
@@ -43,7 +42,7 @@ def StackedBar(data,subplot_int,colors=None,labels=None,monochromatic=False,dire
         plt.legend(loc='lower right')
     return ax
 
-def Lines(data,subplot_int,colors=None,labels=None,monochromatic=False,direction=0):
+def Lines(data,subplot_int,colors=None,labels=None,monochromatic=False,direction=0,markers=False):
 
     num_Ys = len(data)-1
 
@@ -65,11 +64,16 @@ def Lines(data,subplot_int,colors=None,labels=None,monochromatic=False,direction
         Ys = data[i]
         y_color = colors[i-1]
         y_label = labels[i-1]
-        plt.plot(Xs,Ys,color=y_color,label=y_label)
+        plt.plot(Xs,Ys,color=y_color,label=y_label,
+                 marker='o' if markers == True else None,
+                 markersize=10 if markers == True else None)
     plt.legend(loc='lower right')
     return ax
 
-def BestFitLine(xd,yd,subplot_int):
+def BestFitLine(xd,yd,subplot_int,Xs_Are_Dates=False):
+
+    if Xs_Are_Dates:
+        dates_to_ints
 
     ax = plt.subplot(subplot_int)
     # sort the data
@@ -92,7 +96,7 @@ def BestFitLine(xd,yd,subplot_int):
     variance = np.var(yd)
     residuals = np.var([(slope*xx + intercept - yy)  for xx,yy in zip(xd,yd)])
     Rsqr = np.round(1-residuals/variance, decimals=2)
-    plt.text(.7*max(xd)+.3*min(xd),.9*max(yd)+.1*min(yd),'$R^2 = %0.2f$'% Rsqr, fontsize=30)
+    plt.text(.7*max(xd)+.3*min(xd),.9*max(yd)+.1*min(yd),'$R^2 = %0.2f$'% Rsqr, fontsize=30,color=(.5,.5,.5))
 
     # error bounds
     yerr = [abs(slope*xx + intercept - yy)  for xx,yy in zip(xd,yd)]
@@ -101,9 +105,9 @@ def BestFitLine(xd,yd,subplot_int):
     yerrUpper = [(xx*slope+intercept)+(par[0][0]*xx**2 + par[0][1]*xx + par[0][2]) for xx,yy in zip(xd,yd)]
     yerrLower = [(xx*slope+intercept)-(par[0][0]*xx**2 + par[0][1]*xx + par[0][2]) for xx,yy in zip(xd,yd)]
 
-    plt.plot(xl, yl, '-r')
-    plt.plot(xd, yerrLower, '--r')
-    plt.plot(xd, yerrUpper, '--r')
+    plt.plot(xl, yl, '-', color=(.5,.5,.5))
+    plt.plot(xd, yerrLower, '--', color=(.5,.5,.5))
+    plt.plot(xd, yerrUpper, '--', color=(.5,.5,.5))
     return ax
 
 """

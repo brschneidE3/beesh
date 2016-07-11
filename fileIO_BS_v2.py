@@ -2,6 +2,80 @@ __author__ = 'brendan'
 import os
 import numpy as np
 import csv
+import datetime
+import operator
+
+def DictOfDictsToTable(dict_of_dicts,first_key_as_row_header=True):
+    pass
+
+def SortDictionaryByValue(dictionary, ascending=True):
+    sorted_key_and_value_tuples = sorted(dictionary.items(), key=operator.itemgetter(1))
+    sorted_keys = [key_and_value_tuple[0] for key_and_value_tuple in sorted_key_and_value_tuples]
+    if ascending is False:
+        sorted_keys = sorted_keys[::-1]
+    return sorted_keys
+
+def MeanSquaredError(predictions, observed):
+    if len(predictions) != len(observed):
+        print "Size of predictions and observations are different."
+        exit()
+
+    mse = 0
+    n = len(predictions)
+    for i in range(n):
+        error = (predictions[i] - observed[i])**2.
+        mse += error
+    mse *= (1./n)
+    return mse
+
+
+def round_datetime(dt=None, roundto=60):
+    if dt is None:
+        dt = datetime.datetime.now()
+    seconds = (dt - dt.min).seconds
+    rounding = (seconds + roundto/2) // roundto * roundto
+    return dt + datetime.timedelta(0, rounding - seconds, -dt.microsecond)
+
+
+def xldate_as_datetime(xldate, datemode):
+    if datemode not in (0, 1):
+        # raise XLDateBadDatemode(datemode)
+        print "Bad date mode."
+        exit()
+    if xldate == 0.00:
+        return datetime.time(0, 0, 0)
+    if xldate < 0.00:
+        # raise XLDateNegative(xldate)
+        print "Negative date."
+        exit()
+    xldays = int(xldate)
+    frac = xldate - xldays
+    seconds = int(round(frac * 86400.0))
+    assert 0 <= seconds <= 86400
+    if seconds == 86400:
+        seconds = 0
+        xldays += 1
+    # if xldays >= _XLDAYS_TOO_LARGE[datemode]:
+    #     # raise XLDateTooLarge(xldate)
+    #     print "Date too large."
+    #     exit()
+
+    if xldays == 0:
+        # second = seconds % 60; minutes = seconds // 60
+        minutes, second = divmod(seconds, 60)
+        # minute = minutes % 60; hour    = minutes // 60
+        hour, minute = divmod(minutes, 60)
+        return datetime.time(hour, minute, second)
+
+    if xldays < 61 and datemode == 0:
+        # raise XLDateAmbiguous(xldate)
+        print "Ambiguous date."
+        exit()
+    return (
+        datetime.datetime.fromordinal(xldays + 693594 + 1462 * datemode)
+        + datetime.timedelta(seconds=seconds)
+        )
+
 
 def csv_to_list(directory,filename,has_header=0,want_header=0):
 
@@ -373,9 +447,15 @@ def InterfaceCountdown(SecondsToCountdown):
         time.sleep(1)
         SecsLeft -= 1
 
-def SortListByColumn(List,ColumnIndex):
+def SortListByColumn(List,ListOfColumnIndices):
     from operator import itemgetter
-    sorted_List = sorted(List, key=itemgetter(ColumnIndex))
+    num_indices = len(ListOfColumnIndices)
+    if num_indices == 1:
+        sorted_List = sorted(List, key=itemgetter(ListOfColumnIndices[0]))
+    elif num_indices == 2:
+        sorted_List = sorted(List, key=itemgetter(ListOfColumnIndices[0],ListOfColumnIndices[1]))
+    elif num_indices == 3:
+        sorted_List = sorted(List, key=itemgetter(ListOfColumnIndices[0],ListOfColumnIndices[1],ListOfColumnIndices[2]))
     return sorted_List
 
 def SortListByRow(List,RowIndex):
@@ -399,3 +479,9 @@ def PercentileOfList(List,Percentile,Ascending=True):
         return ascending_List[:K]
     else:
         return ascending_List[::-1][:K]
+
+def Smush(TupleOfStrings,delimiter=''):
+    smushed = ''
+    for sub_string in TupleOfStrings:
+        smushed += sub_string + delimiter
+    return smushed

@@ -5,8 +5,44 @@ import csv
 import datetime
 import operator
 
-def DictOfDictsToTable(dict_of_dicts,first_key_as_row_header=True):
-    pass
+def DictOfDictsToTable(dict_of_dicts, first_key_as_row_header=True):
+
+    primary_keys = dict_of_dicts.keys()
+
+    # Get a list of all the secondary keys
+    secondary_keys = []
+    for key in dict_of_dicts.keys():
+        for sec_key in dict_of_dicts[key].keys():
+            secondary_keys.append(sec_key)
+    secondary_keys = list(set(secondary_keys))
+
+    if first_key_as_row_header:
+        output_table = [[''] + secondary_keys]
+        for pri_key in primary_keys:
+            new_row = [pri_key]
+            for sec_key in secondary_keys:
+                try:
+                    new_row.append(dict_of_dicts[pri_key][sec_key])
+                except KeyError:
+                    new_row.append('')
+            output_table.append(new_row)
+
+    else:
+        output_table = [[''] + primary_keys]
+        for sec_key in secondary_keys:
+            new_row = [sec_key]
+            for pri_key in primary_keys:
+                try:
+                    new_row.append(dict_of_dicts[pri_key][sec_key])
+                except KeyError:
+                    new_row.append('')
+            output_table.append(new_row)
+
+    return output_table
+
+dict_of_dicts = {1: {'a': '1a', 'b': '1b', 'c': '1c'},
+                 2: {'a': '2a', 'b': '2b', 'c': '2c'},
+                 3: {'a': '3a', 'b': '3b', 'c': '3c'}}
 
 def SortDictionaryByValue(dictionary, ascending=True):
     sorted_key_and_value_tuples = sorted(dictionary.items(), key=operator.itemgetter(1))

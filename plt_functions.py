@@ -4,7 +4,33 @@ import matplotlib.pyplot as plt
 import random
 import numpy as np
 
-default_colormap = plt.cm.winter
+default_colormap = plt.cm.Accent
+
+def ClusteredBar(Xs, list_of_Ys, subplot_int, list_of_colors=None, list_of_labels=None):
+    width = 0.0667
+    num_Ys = len(list_of_Ys)
+
+    if list_of_colors == None:
+        list_of_colors = [default_colormap(float(i)/num_Ys) for i in range(1,num_Ys+1)]
+
+    if list_of_labels == False:
+        list_of_labels = [None for i in range(num_Ys)]
+    elif list_of_labels == None:
+        list_of_labels = ['Y_%s' % i for i in range(num_Ys)]
+
+    ax = plt.subplot(subplot_int)
+
+    for i in range(1, num_Ys + 1):
+        Ys = list_of_Ys[i-1]
+        y_color = list_of_colors[i-1]
+        y_label = list_of_labels[i-1]
+        plt.bar(Xs, Ys, width, color=y_color, label=y_label, align='center')
+        Xs = [x + width for x in Xs]
+
+    if list_of_labels != False:
+        plt.legend(loc='lower right')
+
+    return ax
 
 def StackedBar(data,subplot_int,colors=None,labels=None,monochromatic=False,direction=0):
 
@@ -19,6 +45,7 @@ def StackedBar(data,subplot_int,colors=None,labels=None,monochromatic=False,dire
                 colors =  [default_colormap(float(i)/num_Ys) for i in range(1,num_Ys+1)]
             else:
                 colors = [default_colormap(1-(float(i)/num_Ys)) for i in range(1,num_Ys+1)]
+
     if labels == False:
         labels = [None for i in range(num_Ys)]
     elif labels == None:
